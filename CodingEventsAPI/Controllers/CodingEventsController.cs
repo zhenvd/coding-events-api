@@ -9,9 +9,9 @@ namespace CodingEventsAPI.Controllers {
   public class CodingEventsController : ControllerBase {
     public const string Entrypoint = "/api/events";
 
-    private readonly SqlLiteDbContext _dbContext;
+    private readonly CodingEventsDbContext _dbContext;
 
-    public CodingEventsController(SqlLiteDbContext dbContext) {
+    public CodingEventsController(CodingEventsDbContext dbContext) {
       _dbContext = dbContext;
     }
 

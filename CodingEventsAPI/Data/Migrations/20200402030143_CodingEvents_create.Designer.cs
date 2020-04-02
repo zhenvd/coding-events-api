@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CodingEventsAPI.Data.Migrations
 {
-    [DbContext(typeof(SqlLiteDbContext))]
+    [DbContext(typeof(CodingEventsDbContext))]
     [Migration("20200402030143_CodingEvents_create")]
     partial class CodingEvents_create
     {

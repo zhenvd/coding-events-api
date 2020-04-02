@@ -17,7 +17,7 @@ namespace CodingEventsAPI {
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services) {
       services.AddControllers();
-      services.AddDbContext<SqlLiteDbContext>();
+      services.AddDbContext<CodingEventsDbContext>(o => o.UseSqlite("Filename=Data/sqlite.db"));
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -31,7 +31,7 @@ namespace CodingEventsAPI {
 
       // run migrations on startup
       var dbContext = app.ApplicationServices.CreateScope()
-        .ServiceProvider.GetService<SqlLiteDbContext>();
+        .ServiceProvider.GetService<CodingEventsDbContext>();
       dbContext.Database.Migrate();
     }
   }

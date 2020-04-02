@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CodingEventsAPI.Data.Migrations
 {
-    [DbContext(typeof(SqlLiteDbContext))]
+    [DbContext(typeof(CodingEventsDbContext))]
     partial class SqlLiteDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
