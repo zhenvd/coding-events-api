@@ -19,8 +19,7 @@ namespace CodingEventsAPI {
     public void ConfigureServices(IServiceCollection services) {
       services.AddControllers();
 
-      // TODO: assign the connection string value from external configuration
-      var connectionString = "";
+      var connectionString = Configuration.GetConnectionString("Default");
       services.AddDbContext<CodingEventsDbContext>(o => o.UseMySql(connectionString));
 
       services.AddSwaggerGen(
