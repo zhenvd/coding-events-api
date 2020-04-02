@@ -17,7 +17,10 @@ namespace CodingEventsAPI {
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services) {
       services.AddControllers();
-      services.AddDbContext<CodingEventsDbContext>(o => o.UseSqlite("Filename=Data/sqlite.db"));
+
+      // TODO: assign the connection string value from external configuration
+      var connectionString = "";
+      services.AddDbContext<CodingEventsDbContext>(o => o.UseMySql(connectionString));
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
