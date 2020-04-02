@@ -6,7 +6,7 @@ namespace CodingEventsAPI.Data {
     public DbSet<CodingEvent> CodingEvents { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options) {
-      options.UseSqlite("Filename=sqlite.db");
+      options.UseSqlite("Filename=Data/sqlite.db");
     }
   }
 }

@@ -1,6 +1,7 @@
 using CodingEventsAPI.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,6 +28,11 @@ namespace CodingEventsAPI {
 
       app.UseRouting();
       app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+      // run migrations on startup
+      var dbContext = app.ApplicationServices.CreateScope()
+        .ServiceProvider.GetService<SqlLiteDbContext>();
+      dbContext.Database.Migrate();
     }
   }
 }
