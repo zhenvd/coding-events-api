@@ -6,11 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-<<<<<<< HEAD
 using Microsoft.OpenApi.Models;
-=======
 using Microsoft.IdentityModel.Tokens;
->>>>>>> adb2c: JWT bearer config and appsettings TODO
 
 namespace CodingEventsAPI {
   public class Startup {
