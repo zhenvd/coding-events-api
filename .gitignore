@@ -1,4 +1,4 @@
 bin/
 obj/
 /packages/
-Data/sqlite.db
+CodingEventsAPI/Data/sqlite.db

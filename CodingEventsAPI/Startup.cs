@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace CodingEventsAPI {
   public class Startup {
@@ -21,6 +22,19 @@ namespace CodingEventsAPI {
       // TODO: assign the connection string value from external configuration
       var connectionString = "";
       services.AddDbContext<CodingEventsDbContext>(o => o.UseMySql(connectionString));
+
+      services.AddSwaggerGen(
+        options => {
+          options.SwaggerDoc(
+            "v1",
+            new OpenApiInfo {
+              Version = "v1",
+              Title = "Coding Events API",
+              Description = "REST API for managing Coding Events"
+            }
+          );
+        }
+      );
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -31,6 +45,13 @@ namespace CodingEventsAPI {
 
       app.UseRouting();
       app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+      app.UseSwagger();
+      app.UseSwaggerUI(
+        options => {
+          options.SwaggerEndpoint("/swagger/v1/swagger.json", "Code Events API Documentation");
+        }
+      );
 
       // run migrations on startup
       var dbContext = app.ApplicationServices.CreateScope()
