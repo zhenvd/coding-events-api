@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CodingEventsAPI.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -6,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
-using Microsoft.IdentityModel.Tokens;
 
 namespace CodingEventsAPI {
   public class Startup {
@@ -17,7 +18,6 @@ namespace CodingEventsAPI {
 
     public IConfiguration Configuration { get; }
 
-    // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services) {
       services.AddControllers();
 
@@ -27,7 +27,8 @@ namespace CodingEventsAPI {
         // ValidAudience: on azure ADB2C > applications > (next to application name)
         // ex: "06eb34fd-455b-4084-92c3-07d5389e6c15"
         // MetadataAddress: on azure ADB2C > User flows > (select flow) > Run user flow (the link at the top right)
-        // ex: "https://mycodeevents.b2clogin.com/mycodeevents.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_code_events_signup_signin"
+        // ex: https://{instance}/{domain}/v2.0/.well-known/openid-configuration?p={flow policy}
+        // ex: "https://mycodingevents.b2clogin.com/mycodingevents.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_code_events_signup_signin"
         .AddJwtBearer(options => Configuration.Bind("JWT:ADB2C", options));
       // binds the appsettings.json JWT.ADB2C JSON object to the JwtBearer options object
       // we group ADB2C under a top level JWT key so that other providers can be used if needed
@@ -50,14 +51,63 @@ namespace CodingEventsAPI {
               Description = "REST API for managing Coding Events"
             }
           );
+
+          // meta annotations for endpoints in UI
+          options.EnableAnnotations();
+
+          // source of truth for reference used in SecurityRequirement and SecurityDefinition
+          const string securityId = "adb2c";
+
+          // instructs swagger to add token as Authorization header (Bearer <token>)
+          options.AddSecurityRequirement(
+            new OpenApiSecurityRequirement {
+              {
+                new OpenApiSecurityScheme {
+                  Reference = new OpenApiReference {
+                    Id = securityId, // reference
+                    Type = ReferenceType.SecurityScheme,
+                  },
+                  UnresolvedReference = true,
+                },
+                new List<string>()
+              }
+            }
+          );
+
+          // TODO: insert values for the empty properties of the SwaggerAuth object in appsettings.json 
+          // define the oauth flow for swagger to use
+          options.AddSecurityDefinition(
+            securityId, // matching reference
+            new OpenApiSecurityScheme {
+              Type = SecuritySchemeType.OAuth2,
+              Flows = new OpenApiOAuthFlows {
+                Implicit = new OpenApiOAuthFlow {
+                  AuthorizationUrl = new System.Uri(
+                    Configuration["SwaggerAuth:AuthorizationUrl"], // where to begin the token flow
+                    // ex: https://{instance}/{domain}/oauth2/v2.0/authorize?p={flow policy}
+                    // ex: https://mycodingevents.b2clogin.com/mycodingevents.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1_code_events_signup_signin
+                    System.UriKind.Absolute // external to the API must be absolute not relative
+                  ),
+                  Scopes = new Dictionary<string, string> {
+                    {
+                      Configuration["SwaggerAuth:Scopes:UserImpersonation"], // openid token scope
+                      // ex: https://{domain}/{app name}/{published scope name}
+                      // ex: https://mycodingevents.onmicrosoft.com/code-events/user_impersonation
+                      "Access the Coding Events API on behalf of signed in User"
+                    }
+                  }
+                }
+              }
+            }
+          );
         }
       );
     }
 
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
       if (env.IsDevelopment()) {
         app.UseDeveloperExceptionPage();
+        IdentityModelEventSource.ShowPII = true; // show protected PII for debugging in development
       }
 
       app.UseRouting();
@@ -67,10 +117,12 @@ namespace CodingEventsAPI {
       // and before UseEndpoints
       app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
+      // configure swagger and UI page
       app.UseSwagger();
       app.UseSwaggerUI(
         options => {
-          options.SwaggerEndpoint("/swagger/v1/swagger.json", "Code Events API Documentation");
+          options.SwaggerEndpoint("/swagger/v1/swagger.json", "Coding Events API Documentation");
+          options.OAuthClientId(Configuration["SwaggerAuth:ClientId"]); // to auto-populate in UI
         }
       );
 

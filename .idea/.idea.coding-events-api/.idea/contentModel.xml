@@ -10,17 +10,24 @@
         <e p="CodingEventsAPI.csproj" t="IncludeRecursive" />
         <e p="Controllers" t="Include">
           <e p="CodingEventsController.cs" t="Include" />
+          <e p="TagsController.cs" t="Include" />
         </e>
         <e p="Data" t="Include">
           <e p="CodingEventsDbContext.cs" t="Include" />
           <e p="Migrations" t="Include">
             <e p="20200404233931_CodingEvents_create.cs" t="Include" />
             <e p="20200404233931_CodingEvents_create.Designer.cs" t="Include" />
+            <e p="20200406053554_CodingEventTags.cs" t="Include" />
+            <e p="20200406053554_CodingEventTags.Designer.cs" t="Include" />
+            <e p="20200406165435_Tags_unique_name.cs" t="Include" />
+            <e p="20200406165435_Tags_unique_name.Designer.cs" t="Include" />
             <e p="CodingEventsDbContextModelSnapshot.cs" t="Include" />
           </e>
         </e>
         <e p="Models" t="Include">
           <e p="CodingEvent.cs" t="Include" />
+          <e p="Tag.cs" t="Include" />
+          <e p="UniqueEntity.cs" t="Include" />
         </e>
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
