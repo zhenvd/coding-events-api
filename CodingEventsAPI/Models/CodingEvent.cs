@@ -1,13 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace CodingEventsAPI.Models {
-  public class CodingEvent {
-    public long Id { get; set; }
+  public class CodingEvent : UniqueEntity {
     public string Title { get; set; }
     public string Description { get; set; }
     public DateTime Date { get; set; }
+
+    [JsonIgnore] // does not get serialized (only accessible within the API code)
+    public List<CodingEventTag> CodingEventTags { get; set; } = new List<CodingEventTag>();
   }
 
   // a input DTO is used to prevent an "over-posting [mass assignment]" attack

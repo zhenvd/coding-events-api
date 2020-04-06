@@ -3,14 +3,16 @@ using System;
 using CodingEventsAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CodingEventsAPI.Data.Migrations
 {
     [DbContext(typeof(CodingEventsDbContext))]
-    partial class CodingEventsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200406053554_CodingEventTags")]
+    partial class CodingEventTags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,6 +51,9 @@ namespace CodingEventsAPI.Data.Migrations
 
                     b.HasIndex("CodingEventId");
 
+                    b.HasIndex("TagId", "CodingEventId")
+                        .IsUnique();
+
                     b.ToTable("CodingEventTag");
                 });
 
@@ -59,12 +64,9 @@ namespace CodingEventsAPI.Data.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("Tags");
                 });
