@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using CodingEventsAPI.Data;
 using CodingEventsAPI.Models;
@@ -9,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CodingEventsAPI.Controllers {
-  [Authorize]
+  [Authorize] // all endpoints in controller require Authentication/Authorization unless specified
   [ApiController]
   [Route(Entrypoint)]
   public class CodingEventsController : ControllerBase {
@@ -23,6 +22,7 @@ namespace CodingEventsAPI.Controllers {
 
 
     [HttpGet]
+    [AllowAnonymous] // does not require Authentication / Authorization
     [SwaggerOperation(
       OperationId = "GetCodingEvents",
       Summary = "Retrieve all Coding Events",
@@ -79,6 +79,60 @@ namespace CodingEventsAPI.Controllers {
         // row did not exist
         return NotFound();
       }
+
+      return NoContent();
+    }
+
+    [HttpPut]
+    [Route("{codingEventId}/tags/{tagId}")]
+    [SwaggerOperation(OperationId = "AddTagToCodingEvent", Summary = "Add a Tag to a Coding Event")]
+    [SwaggerResponse(204, "No content success", Type = null)]
+    [SwaggerResponse(404, "Coding Event or Tag not found", Type = null)]
+    public ActionResult AddTagToCodingEvent(
+      [FromRoute] long codingEventId,
+      [FromRoute] long tagId
+    ) {
+      var codingEvent = _dbContext.CodingEvents.Find(codingEventId);
+      if (codingEvent == null) return NotFound();
+
+      var tag = _dbContext.Tags.Find(tagId);
+      // var tag = _dbContext.Tags.Find(addTagDto.TagId);
+      if (tag == null) return NotFound();
+
+      codingEvent.CodingEventTags.Add(new CodingEventTag { Tag = tag, CodingEvent = codingEvent });
+
+      try {
+        _dbContext.SaveChanges();
+      }
+      catch (DbUpdateException) {
+        // duplicate tags
+        return BadRequest();
+      }
+
+      return NoContent();
+    }
+
+    [HttpDelete]
+    [Route("{codingEventId}/tags/{tagId}")]
+    [SwaggerOperation(
+      OperationId = "RemoveTagFromCodingEvent",
+      Summary = "Remove a Tag from a Coding Event"
+    )]
+    [SwaggerResponse(204, "No content success", Type = null)]
+    [SwaggerResponse(404, "Coding Event or Tag not found", Type = null)]
+    public ActionResult RemoveTagFromCodingEvent(
+      [FromRoute] long codingEventId,
+      [FromRoute] long tagId
+    ) {
+      var codingEvent = _dbContext.CodingEvents.Include(ce => ce.CodingEventTags)
+        .SingleOrDefault(ce => ce.Id == codingEventId);
+      if (codingEvent == null) return NotFound();
+
+      var tag = codingEvent.CodingEventTags.Find(ceTag => ceTag.TagId == tagId);
+      if (tag == null) return BadRequest();
+
+      codingEvent.CodingEventTags.Remove(tag);
+      _dbContext.SaveChanges();
 
       return NoContent();
     }
