@@ -12,12 +12,13 @@
           <e p="CodingEventsController.cs" t="Include" />
         </e>
         <e p="Data" t="Include">
+          <e p="CodingEventsDbContext.cs" t="Include" />
           <e p="Migrations" t="Include">
             <e p="20200402030143_CodingEvents_create.cs" t="Include" />
             <e p="20200402030143_CodingEvents_create.Designer.cs" t="Include" />
             <e p="SqlLiteDbContextModelSnapshot.cs" t="Include" />
           </e>
-          <e p="SqlLiteDbContext.cs" t="Include" />
+          <e p="sqlite.db" t="Include" />
         </e>
         <e p="Models" t="Include">
           <e p="CodingEvent.cs" t="Include" />
