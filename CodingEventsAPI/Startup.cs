@@ -19,7 +19,7 @@ namespace CodingEventsAPI {
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services) {
       services.AddControllers();
-      services.AddDbContext<CodingEventsDbContext>(o => o.UseSqlite("Filename=Data/sqlite.db"));
+      services.AddDbContext<CodingEventsDbContext>(o => o.UseSqlite("Filename=./sqlite.db"));
       services.AddSwaggerGen(
         options => {
           options.SwaggerDoc(
