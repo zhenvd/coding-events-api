@@ -1,113 +1,196 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CodingEventsAPI.Data;
+using CodingEventsAPI.Data.Repositories;
 using CodingEventsAPI.Models;
+using CodingEventsAPI.Services;
+using CodingEventsAPI.Swagger;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CodingEventsAPI.Controllers {
-  [Authorize] // all endpoints in controller require Authentication/Authorization unless specified
+  [Authorize]
   [ApiController]
   [Route(Entrypoint)]
   public class CodingEventsController : ControllerBase {
     public const string Entrypoint = "/api/events";
 
-    private readonly CodingEventsDbContext _dbContext;
+    public static readonly CodingEventResourceLinks ResourceLinks =
+      new CodingEventResourceLinks(Entrypoint);
 
-    public CodingEventsController(CodingEventsDbContext dbContext) {
-      _dbContext = dbContext;
+    private readonly IOwnerService _ownerService;
+    private readonly IMemberService _memberService;
+    private readonly IAuthedUserService _authedUserService;
+    private readonly IPublicAccessService _publicAccessService;
+    private readonly ICodingEventTagService _codingEventTagService;
+
+    public CodingEventsController(
+      IOwnerService ownerService,
+      IMemberService memberService,
+      IAuthedUserService authedUserService,
+      IPublicAccessService publicAccessService,
+      ICodingEventTagService codingEventTagService
+    ) {
+      _ownerService = ownerService;
+      _memberService = memberService;
+      _authedUserService = authedUserService;
+      _publicAccessService = publicAccessService;
+      _codingEventTagService = codingEventTagService;
     }
 
-
     [HttpGet]
-    [AllowAnonymous] // does not require Authentication / Authorization
+    [AllowAnonymous]
     [SwaggerOperation(
       OperationId = "GetCodingEvents",
       Summary = "Retrieve all Coding Events",
-      Description = "Publicly available"
+      Description = "Publicly available",
+      Tags = new[] { SwaggerTags.PublicAccessTag }
     )]
-    [SwaggerResponse(200, "List of public Coding Event data", Type = typeof(List<CodingEvent>))]
-    public ActionResult GetCodingEvents() => Ok(_dbContext.CodingEvents.ToList());
+    [SwaggerResponse(200, "List of public Coding Event data", Type = typeof(List<CodingEventDto>))]
+    public ActionResult GetCodingEvents() {
+      return Ok(_publicAccessService.GetAllCodingEvents());
+    }
 
     [HttpPost]
-    [SwaggerOperation(OperationId = "RegisterCodingEvent", Summary = "Create a new Coding Event")]
-    [SwaggerResponse(201, "Returns new Coding Event data", Type = typeof(CodingEvent))]
+    [SwaggerOperation(
+      OperationId = "CreateCodingEvent",
+      Summary = "Create a new Coding Event",
+      Description = "Requires an authenticated User",
+      Tags = new[] { SwaggerTags.RequiredAuthedUser }
+    )]
+    [SwaggerResponse(201, "Returns new public Coding Event data", Type = typeof(CodingEventDto))]
     [SwaggerResponse(400, "Invalid or missing Coding Event data", Type = null)]
-    public ActionResult RegisterCodingEvent([FromBody] NewCodingEventDto newCodingEventDto) {
-      var codingEventEntry = _dbContext.CodingEvents.Add(new CodingEvent());
-      codingEventEntry.CurrentValues.SetValues(newCodingEventDto);
-      _dbContext.SaveChanges();
-
-      var newCodingEvent = codingEventEntry.Entity;
+    public ActionResult CreateCodingEvent(
+      [FromBody, SwaggerParameter("New Coding Event data", Required = true)]
+      NewCodingEventDto newCodingEvent
+    ) {
+      var codingEvent = _authedUserService.RegisterCodingEvent(newCodingEvent, HttpContext.User);
 
       return CreatedAtAction(
         nameof(GetCodingEvent),
-        new { codingEventId = newCodingEvent.Id },
-        newCodingEvent
+        new { codingEventId = codingEvent.Id },
+        codingEvent.ToPublicDto()
       );
     }
 
     [HttpGet]
     [Route("{codingEventId}")]
-    [SwaggerOperation(OperationId = "GetCodingEvent", Summary = "Retrieve Coding Event data")]
-    [SwaggerResponse(200, "Complete Coding Event data", Type = typeof(CodingEvent))]
+    [SwaggerOperation(
+      OperationId = "GetCodingEvent",
+      Summary = "Retrieve Coding Event data",
+      Description = "Requires an authenticated Member or Owner of the Coding Event",
+      Tags = new[] { SwaggerTags.RequireMemberOrOwnerTag }
+    )]
+    [SwaggerResponse(
+      200,
+      @"
+Complete Coding Event data with links available to the requesting Member's Role.<br>
+Member Role: links.leave.<br>
+Owner Role: links.cancel
+",
+      Type = typeof(CodingEventDto)
+    )]
+    [SwaggerResponse(403, "Not a Member of the Coding Event", Type = null)]
     [SwaggerResponse(404, "Coding Event not found", Type = null)]
-    public ActionResult GetCodingEvent([FromRoute] long codingEventId) {
-      var codingEvent = _dbContext.CodingEvents.Find(codingEventId);
-      if (codingEvent == null) return NotFound();
+    public ActionResult GetCodingEvent(
+      [FromRoute, SwaggerParameter("The ID of the Coding Event", Required = true)]
+      long codingEventId
+    ) {
+      var userIsMember = _memberService.IsUserAMember(codingEventId, HttpContext.User);
+      if (!userIsMember) return StatusCode(403);
 
-      return Ok(codingEvent);
+      var codingEventDto = _memberService.GetCodingEventById(codingEventId, HttpContext.User);
+      if (codingEventDto == null) return NotFound();
+
+      return Ok(codingEventDto);
     }
 
     [HttpDelete]
     [Route("{codingEventId}")]
     [SwaggerOperation(
       OperationId = "CancelCodingEvent",
-      Summary = "Cancel (delete) a Coding Event"
+      Summary = "Cancel a Coding Event",
+      Description = "Requires an authenticated Owner of the Coding Event",
+      Tags = new[] { SwaggerTags.RequireOwnerTag }
     )]
     [ProducesResponseType(204)] // suppress default swagger 200 response code
     [SwaggerResponse(204, "No content success", Type = null)]
-    public ActionResult CancelCodingEvent([FromRoute] long codingEventId) {
-      _dbContext.CodingEvents.Remove(new CodingEvent { Id = codingEventId });
+    [SwaggerResponse(403, "Not an Owner of the Coding Event", Type = null)]
+    public ActionResult CancelCodingEvent(
+      [FromRoute, SwaggerParameter("The ID of the Coding Event", Required = true)]
+      long codingEventId
+    ) {
+      var isOwner = _memberService.IsUserAnOwner(codingEventId, HttpContext.User);
+      if (!isOwner) return StatusCode(403);
 
-      try {
-        _dbContext.SaveChanges();
-      }
-      catch (DbUpdateConcurrencyException) {
-        // row did not exist
-        return NotFound();
-      }
+      _ownerService.CancelCodingEvent(codingEventId);
 
       return NoContent();
     }
 
+    [HttpGet]
+    [AllowAnonymous]
+    [Route("{codingEventId}/tags")]
+    [SwaggerOperation(
+      OperationId = "GetCodingEventTags",
+      Summary = "Get the Coding Event Tags",
+      Tags = new[] { SwaggerTags.PublicAccessTag, SwaggerTags.RequireMemberOrOwnerTag }
+    )]
+    [SwaggerResponse(
+      200,
+      @"
+List of Tags associated with the Coding Event<br>
+Public: links.tag, links.codingEvents<br>
+Owners: includes links.add and links.remove
+",
+      Type = typeof(List<TagDto>)
+    )]
+    public ActionResult GetCodingEventTags(
+      [FromRoute, SwaggerParameter("The ID of the Coding Event", Required = true)]
+      long codingEventId
+    ) {
+      List<TagDto> tags;
+
+      if (HttpContext.User.Identity.IsAuthenticated) {
+        tags = _memberService.GetTagsForCodingEvent(codingEventId, HttpContext.User);
+      }
+      else {
+        tags = _publicAccessService.GetTagsForCodingEvent(codingEventId);
+      }
+
+      return Ok(tags);
+    }
+
     [HttpPut]
     [Route("{codingEventId}/tags/{tagId}")]
-    [SwaggerOperation(OperationId = "AddTagToCodingEvent", Summary = "Add a Tag to a Coding Event")]
+    [SwaggerOperation(
+      OperationId = "AddTagToCodingEvent",
+      Summary = "Add a Tag to a Coding Event",
+      Tags = new[] { SwaggerTags.RequireOwnerTag }
+    )]
+    [ProducesResponseType(204)] // suppress default swagger 200 response code
     [SwaggerResponse(204, "No content success", Type = null)]
-    [SwaggerResponse(404, "Coding Event or Tag not found", Type = null)]
+    [SwaggerResponse(403, "Not an Owner of the Coding Event", Type = null)]
+    [SwaggerResponse(
+      400,
+      "Tag can not be associated with the Coding Event (not found or already associated)",
+      Type = null
+    )]
     public ActionResult AddTagToCodingEvent(
-      [FromRoute] long codingEventId,
-      [FromRoute] long tagId
+      [FromRoute, SwaggerParameter("The ID of the Coding Event", Required = true)]
+      long codingEventId,
+      [FromRoute, SwaggerParameter("The ID of the Tag", Required = true)]
+      long tagId
     ) {
-      var codingEvent = _dbContext.CodingEvents.Find(codingEventId);
-      if (codingEvent == null) return NotFound();
+      var isOwner = _memberService.IsUserAnOwner(codingEventId, HttpContext.User);
+      if (!isOwner) return StatusCode(403);
 
-      var tag = _dbContext.Tags.Find(tagId);
-      // var tag = _dbContext.Tags.Find(addTagDto.TagId);
-      if (tag == null) return NotFound();
+      var tagCanBeAdded = _codingEventTagService.CanTagBeAdded(codingEventId, tagId);
+      if (!tagCanBeAdded) return BadRequest();
 
-      codingEvent.CodingEventTags.Add(new CodingEventTag { Tag = tag, CodingEvent = codingEvent });
-
-      try {
-        _dbContext.SaveChanges();
-      }
-      catch (DbUpdateException) {
-        // duplicate tags
-        return BadRequest();
-      }
+      _codingEventTagService.AddTagToCodingEvent(codingEventId, tagId);
 
       return NoContent();
     }
@@ -116,23 +199,30 @@ namespace CodingEventsAPI.Controllers {
     [Route("{codingEventId}/tags/{tagId}")]
     [SwaggerOperation(
       OperationId = "RemoveTagFromCodingEvent",
-      Summary = "Remove a Tag from a Coding Event"
+      Summary = "Remove a Tag from a Coding Event",
+      Tags = new[] { SwaggerTags.RequireOwnerTag }
     )]
+    [ProducesResponseType(204)] // suppress default swagger 200 response code
     [SwaggerResponse(204, "No content success", Type = null)]
-    [SwaggerResponse(404, "Coding Event or Tag not found", Type = null)]
+    [SwaggerResponse(
+      400,
+      "Tag can not be removed from the Coding Event (not found or not associated)",
+      Type = null
+    )]
+    [SwaggerResponse(403, "Not an Owner of the Coding Event", Type = null)]
     public ActionResult RemoveTagFromCodingEvent(
-      [FromRoute] long codingEventId,
-      [FromRoute] long tagId
+      [FromRoute, SwaggerParameter("The ID of the Coding Event", Required = true)]
+      long codingEventId,
+      [FromRoute, SwaggerParameter("The ID of the Tag", Required = true)]
+      long tagId
     ) {
-      var codingEvent = _dbContext.CodingEvents.Include(ce => ce.CodingEventTags)
-        .SingleOrDefault(ce => ce.Id == codingEventId);
-      if (codingEvent == null) return NotFound();
+      var isOwner = _memberService.IsUserAnOwner(codingEventId, HttpContext.User);
+      if (!isOwner) return StatusCode(403);
 
-      var tag = codingEvent.CodingEventTags.Find(ceTag => ceTag.TagId == tagId);
-      if (tag == null) return BadRequest();
+      var tagCanBeRemoved = _codingEventTagService.CanTagBeRemoved(codingEventId, tagId);
+      if (!tagCanBeRemoved) return BadRequest();
 
-      codingEvent.CodingEventTags.Remove(tag);
-      _dbContext.SaveChanges();
+      _codingEventTagService.RemoveTagFromCodingEvent(codingEventId, tagId);
 
       return NoContent();
     }

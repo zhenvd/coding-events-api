@@ -1,84 +1,94 @@
 using System.Collections.Generic;
 using System.Linq;
 using CodingEventsAPI.Data;
+using CodingEventsAPI.Data.Repositories;
 using CodingEventsAPI.Models;
+using CodingEventsAPI.Services;
+using CodingEventsAPI.Swagger;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CodingEventsAPI.Controllers {
-  [Authorize]
   [ApiController]
   [Route(Entrypoint)]
   public class TagsController : ControllerBase {
     public const string Entrypoint = "/api/tags";
 
-    private CodingEventsDbContext _dbContext;
+    public static readonly TagResourceLinks ResourceLinks = new TagResourceLinks(Entrypoint);
 
-    public TagsController(CodingEventsDbContext dbContext) {
+    private CodingEventsDbContext _dbContext;
+    private readonly IPublicAccessService _publicAccessService;
+
+    public TagsController(
+      CodingEventsDbContext dbContext,
+      IPublicAccessService publicAccessService
+    ) {
       _dbContext = dbContext;
+      _publicAccessService = publicAccessService;
     }
 
     [HttpGet]
-    [AllowAnonymous]
     [SwaggerOperation(
       OperationId = "GetTags",
       Summary = "Retrieve all Tags",
-      Description = "Publicly available"
+      Description = "Publicly available",
+      Tags = new[] { SwaggerTags.PublicAccessTag }
     )]
-    [SwaggerResponse(200, "List of Tag data", Type = typeof(List<Tag>))]
-    public ActionResult GetTags() => Ok(_dbContext.Tags.ToList());
+    [SwaggerResponse(200, "List of Tag data", Type = typeof(List<TagDto>))]
+    public ActionResult GetTags() => Ok(_publicAccessService.GetTags());
 
     [HttpGet]
     [Route("{tagId}")]
-    [SwaggerOperation(OperationId = "GetTag", Summary = "Retrieve Tag data")]
-    [SwaggerResponse(200, "Tag data", Type = typeof(Tag))]
+    [SwaggerOperation(
+      OperationId = "GetTag",
+      Summary = "Retrieve Tag data",
+      Tags = new[] { SwaggerTags.PublicAccessTag }
+    )]
+    [SwaggerResponse(200, "Tag data", Type = typeof(TagDto))]
     [SwaggerResponse(404, "Tag not found", Type = null)]
     public ActionResult GetTag([FromRoute] long tagId) {
-      var tag = _dbContext.Tags.Find(tagId);
-      if (tag == null) return NotFound();
+      var tagDto = _publicAccessService.GetTagById(tagId);
+      if (tagDto == null) return NotFound();
 
-      return Ok(tag);
+      return Ok(tagDto);
     }
 
 
     [HttpPost]
-    [SwaggerOperation(OperationId = "CreateTag", Summary = "Create a new Tag")]
-    [SwaggerResponse(201, "Returns new Tag data", Type = typeof(Tag))]
+    [Authorize]
+    [SwaggerOperation(
+      OperationId = "CreateTag",
+      Summary = "Create a new Tag",
+      Tags = new[] { SwaggerTags.RequiredAuthedUser }
+    )]
+    [SwaggerResponse(201, "Returns new public Tag data", Type = typeof(TagDto))]
     [SwaggerResponse(400, "Invalid or missing Tag data", Type = null)]
-    public ActionResult CreateTag([FromBody] NewTagDto newTagDto) {
-      var tagEntry = _dbContext.Tags.Add(new Tag());
-      tagEntry.CurrentValues.SetValues(newTagDto);
+    public ActionResult CreateTag(
+      [FromBody, SwaggerParameter("New Tag data", Required = true)]
+      NewTagDto newTagDto
+    ) {
+      var newTag = _publicAccessService.CreateTag(newTagDto);
+      if (newTag == null) return BadRequest();
 
-      try {
-        _dbContext.SaveChanges();
-      }
-      catch (DbUpdateException) {
-        // unique Tag.Name violation
-        return BadRequest();
-      }
-
-      var newTag = tagEntry.Entity;
-
-      return CreatedAtAction(nameof(GetTag), new { tagId = newTag.Id }, newTag);
+      return CreatedAtAction(nameof(GetTag), new { tagId = newTag.Id }, newTag.ToPublicDto());
     }
 
     [HttpGet]
     [Route("{tagId}/events")]
     [SwaggerOperation(
       OperationId = "GetTagEvents",
-      Summary = "Retrieve Coding Events with the given Tag"
+      Summary = "Retrieve Coding Events with the given Tag",
+      Tags = new[] { SwaggerTags.PublicAccessTag }
     )]
-    [SwaggerResponse(200, "Coding Events", Type = typeof(List<CodingEvent>))]
+    [SwaggerResponse(200, "Coding Events", Type = typeof(List<CodingEventDto>))]
     [SwaggerResponse(404, "Tag not found", Type = null)]
-    public ActionResult GetTagEvents([FromRoute] long tagId) {
-      var tag = _dbContext.Tags.Include(t => t.CodingEventTags)
-        .ThenInclude(ceTag => ceTag.CodingEvent)
-        .SingleOrDefault(t => t.Id == tagId);
-      if (tag == null) return NotFound();
+    public ActionResult GetCodingEventsForTag([FromRoute] long tagId) {
+      var codingEventDtos = _publicAccessService.GetCodingEventsForTag(tagId);
+      if (codingEventDtos == null) return NotFound();
 
-      return Ok(tag.CodingEventTags.Select(ceTag => ceTag.CodingEvent));
+      return Ok(codingEventDtos);
     }
   }
 }

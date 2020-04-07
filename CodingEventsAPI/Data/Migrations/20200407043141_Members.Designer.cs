@@ -3,14 +3,16 @@ using System;
 using CodingEventsAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CodingEventsAPI.Data.Migrations
 {
     [DbContext(typeof(CodingEventsDbContext))]
-    partial class CodingEventsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200407043141_Members")]
+    partial class Members
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

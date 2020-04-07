@@ -1,5 +1,10 @@
 using System.Collections.Generic;
+using CodingEventsAPI.Controllers;
 using CodingEventsAPI.Data;
+using CodingEventsAPI.Data.Repositories;
+using CodingEventsAPI.Middleware;
+using CodingEventsAPI.Services;
+using CodingEventsAPI.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace CodingEventsAPI {
   public class Startup {
@@ -19,7 +25,20 @@ namespace CodingEventsAPI {
     public IConfiguration Configuration { get; }
 
     public void ConfigureServices(IServiceCollection services) {
+      ResourceLink.ServerOrigin = Configuration["Server:Origin"];
+
       services.AddControllers();
+
+      // register repositories
+      services.AddScoped<ICodingEventRepository, CodingEventRepository>();
+      services.AddScoped<ITagRepository, TagRepository>();
+
+      // register services
+      services.AddScoped<IMemberService, MemberService>();
+      services.AddScoped<IOwnerService, OwnerService>();
+      services.AddScoped<IAuthedUserService, AuthedUserService>();
+      services.AddScoped<IPublicAccessService, PublicAccessService>();
+      services.AddScoped<ICodingEventTagService, CodingEventTagService>();
 
       // authenticate using JWT Bearer
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -54,6 +73,9 @@ namespace CodingEventsAPI {
 
           // meta annotations for endpoints in UI
           options.EnableAnnotations();
+
+          // req/res body examples
+          options.ExampleFilters();
 
           // source of truth for reference used in SecurityRequirement and SecurityDefinition
           const string securityId = "adb2c";
@@ -102,6 +124,16 @@ namespace CodingEventsAPI {
           );
         }
       );
+
+      // register swagger example response objects
+      services.AddSwaggerExamplesFromAssemblyOf<TagExample>();
+      services.AddSwaggerExamplesFromAssemblyOf<TagsExample>();
+      services.AddSwaggerExamplesFromAssemblyOf<NewTagExample>();
+      services.AddSwaggerExamplesFromAssemblyOf<MemberExample>();
+      services.AddSwaggerExamplesFromAssemblyOf<MembersExample>();
+      services.AddSwaggerExamplesFromAssemblyOf<CodingEventExample>();
+      services.AddSwaggerExamplesFromAssemblyOf<CodingEventsExample>();
+      services.AddSwaggerExamplesFromAssemblyOf<NewCodingEventExample>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
@@ -114,6 +146,7 @@ namespace CodingEventsAPI {
       // must come after UseRouting
       app.UseAuthentication();
       app.UseAuthorization(); // Authorization is implicit for any Authenticated request
+      app.UseMiddleware<AddUserIdClaimMiddleware>();
       // and before UseEndpoints
       app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 

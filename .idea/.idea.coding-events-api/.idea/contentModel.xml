@@ -10,6 +10,8 @@
         <e p="CodingEventsAPI.csproj" t="IncludeRecursive" />
         <e p="Controllers" t="Include">
           <e p="CodingEventsController.cs" t="Include" />
+          <e p="MembersController.cs" t="Include" />
+          <e p="ResourceLinks.cs" t="Include" />
           <e p="TagsController.cs" t="Include" />
         </e>
         <e p="Data" t="Include">
@@ -21,13 +23,26 @@
             <e p="20200406053554_CodingEventTags.Designer.cs" t="Include" />
             <e p="20200406165435_Tags_unique_name.cs" t="Include" />
             <e p="20200406165435_Tags_unique_name.Designer.cs" t="Include" />
+            <e p="20200407043141_Members.cs" t="Include" />
+            <e p="20200407043141_Members.Designer.cs" t="Include" />
             <e p="CodingEventsDbContextModelSnapshot.cs" t="Include" />
           </e>
+          <e p="Repositories" t="Include">
+            <e p="CodingEventRepository.cs" t="Include" />
+            <e p="IBaseRepository.cs" t="Include" />
+            <e p="TagRepository.cs" t="Include" />
+          </e>
+        </e>
+        <e p="Middleware" t="Include">
+          <e p="AddUserIdClaimMiddleware.cs" t="Include" />
         </e>
         <e p="Models" t="Include">
           <e p="CodingEvent.cs" t="Include" />
+          <e p="Member.cs" t="Include" />
+          <e p="MemberRestricted.cs" t="Include" />
           <e p="Tag.cs" t="Include" />
           <e p="UniqueEntity.cs" t="Include" />
+          <e p="User.cs" t="Include" />
         </e>
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
@@ -40,7 +55,22 @@
         <e p="Properties" t="Include">
           <e p="launchSettings.json" t="Include" />
         </e>
+        <e p="Services" t="Include">
+          <e p="AuthedUserService.cs" t="Include" />
+          <e p="CodingEventTagService.cs" t="Include" />
+          <e p="MemberService.cs" t="Include" />
+          <e p="OwnerService.cs" t="Include" />
+          <e p="PublicAccessService.cs" t="Include" />
+        </e>
         <e p="Startup.cs" t="Include" />
+        <e p="Swagger" t="Include">
+          <e p="Examples" t="Include">
+            <e p="CodingEventExamples.cs" t="Include" />
+            <e p="MemberExamples.cs" t="Include" />
+            <e p="TagExamples.cs" t="Include" />
+          </e>
+          <e p="SwaggerTags.cs" t="Include" />
+        </e>
       </e>
       <e p="packages" t="ExcludeRecursive" />
     </e>
