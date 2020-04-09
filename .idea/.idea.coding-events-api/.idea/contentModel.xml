@@ -18,7 +18,6 @@
             <e p="20200402030143_CodingEvents_create.Designer.cs" t="Include" />
             <e p="SqlLiteDbContextModelSnapshot.cs" t="Include" />
           </e>
-          <e p="sqlite.db" t="Include" />
         </e>
         <e p="Models" t="Include">
           <e p="CodingEvent.cs" t="Include" />
@@ -34,6 +33,7 @@
         <e p="Properties" t="Include">
           <e p="launchSettings.json" t="Include" />
         </e>
+        <e p="sqlite.db" t="Include" />
         <e p="Startup.cs" t="Include" />
       </e>
       <e p="packages" t="ExcludeRecursive" />
