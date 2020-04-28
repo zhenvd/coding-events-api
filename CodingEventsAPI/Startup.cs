@@ -154,6 +154,7 @@ namespace CodingEventsAPI {
       app.UseSwagger();
       app.UseSwaggerUI(
         options => {
+          options.RoutePrefix = ""; // root path of the server, "/", will display swagger docs
           options.SwaggerEndpoint("/swagger/v1/swagger.json", "Coding Events API Documentation");
           options.OAuthClientId(Configuration["SwaggerAuth:ClientId"]); // to auto-populate in UI
         }
