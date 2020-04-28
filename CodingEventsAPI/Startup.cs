@@ -48,6 +48,7 @@ namespace CodingEventsAPI {
       app.UseSwagger();
       app.UseSwaggerUI(
         options => {
+          options.RoutePrefix = ""; // root path of the server, "/", will display swagger docs
           options.SwaggerEndpoint("/swagger/v1/swagger.json", "Code Events API Documentation");
         }
       );
