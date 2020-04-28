@@ -2,3 +2,7 @@ bin/
 obj/
 /packages/
 CodingEventsAPI/Data/sqlite.db
+
+# editor configs
+.vscode/
+.idea/
