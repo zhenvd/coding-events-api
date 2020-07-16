@@ -98,30 +98,34 @@ namespace CodingEventsAPI {
 
           // TODO: insert values for the empty properties of the SwaggerAuth object in appsettings.json 
           // define the oauth flow for swagger to use
-          options.AddSecurityDefinition(
-            securityId, // matching reference
-            new OpenApiSecurityScheme {
-              Type = SecuritySchemeType.OAuth2,
-              Flows = new OpenApiOAuthFlows {
-                Implicit = new OpenApiOAuthFlow {
-                  AuthorizationUrl = new System.Uri(
-                    Configuration["SwaggerAuth:AuthorizationUrl"], // where to begin the token flow
-                    // ex: https://{instance}/{domain}/oauth2/v2.0/authorize?p={flow policy}
-                    // ex: https://mycodingevents.b2clogin.com/mycodingevents.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1_code_events_signup_signin
-                    System.UriKind.Absolute // external to the API must be absolute not relative
-                  ),
-                  Scopes = new Dictionary<string, string> {
-                    {
-                      Configuration["SwaggerAuth:Scopes:UserImpersonation"], // openid token scope
-                      // ex: https://{domain}/{app name}/{published scope name}
-                      // ex: https://mycodingevents.onmicrosoft.com/code-events/user_impersonation
-                      "Access the Coding Events API on behalf of signed in User"
-                    }
-                  }
-                }
-              }
-            }
-          );
+          // options.AddSecurityDefinition(
+          //   securityId, // matching reference
+          //   new OpenApiSecurityScheme {
+          //     Type = SecuritySchemeType.OAuth2,
+          //     Flows = new OpenApiOAuthFlows {
+          //       Implicit = new OpenApiOAuthFlow {
+          //         AuthorizationUrl = new System.Uri(
+          //           Configuration["SwaggerAuth:AuthorizationUrl"], // where to begin the token flow
+          //           // ex: https://{instance}/{domain}/oauth2/v2.0/authorize?p={flow policy}
+          //           // ex: https://mycodingevents.b2clogin.com/mycodingevents.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1_code_events_signup_signin
+          //           System.UriKind.Absolute // external to the API must be absolute not relative
+          //         ),
+          //         // TokenUrl = new System.Uri(
+          //         //   Configuration["SwaggerAuth:TokenUrl"],
+          //         //   System.UriKind.Absolute
+          //         // ),
+          //         Scopes = new Dictionary<string, string> {
+          //           {
+          //             Configuration["SwaggerAuth:Scopes:UserImpersonation"], // openid token scope
+          //             // ex: https://{domain}/{app name}/{published scope name}
+          //             // ex: https://mycodingevents.onmicrosoft.com/code-events/user_impersonation
+          //             "Access the Coding Events API on behalf of signed in User"
+          //           }
+          //         }
+          //       }
+          //     }
+          //   }
+          // );
         }
       );
 
@@ -157,6 +161,7 @@ namespace CodingEventsAPI {
           options.RoutePrefix = ""; // root path of the server, "/", will display swagger docs
           options.SwaggerEndpoint("/swagger/v1/swagger.json", "Coding Events API Documentation");
           options.OAuthClientId(Configuration["SwaggerAuth:ClientId"]); // to auto-populate in UI
+          //options.InjectJavascript("/force-implicit.js", "text/javascript");
         }
       );
 
