@@ -42,21 +42,19 @@ namespace CodingEventsAPI {
       services.AddScoped<ICodingEventTagService, CodingEventTagService>();
 
       // authenticate using JWT Bearer
-      services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        // TODO: insert values for the empty properties of the JWT.ADB2C object in appsettings.json 
-        // ValidAudience: on azure ADB2C > applications > (next to application name)
-        // ex: "06eb34fd-455b-4084-92c3-07d5389e6c15"
-        // MetadataAddress: on azure ADB2C > User flows > (select flow) > Run user flow (the link at the top right)
-        // ex: https://{instance}/{domain}/v2.0/.well-known/openid-configuration?p={flow policy}
-        // ex: "https://mycodingevents.b2clogin.com/mycodingevents.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_code_events_signup_signin"
-        .AddJwtBearer(options => Configuration.Bind("JWT:ADB2C", options));
-      // binds the appsettings.json JWT.ADB2C JSON object to the JwtBearer options object
-      // we group ADB2C under a top level JWT key so that other providers can be used if needed
-      // notice the JWT.ADB2C[optionProperty] corresponds to the options object properties
-      // ex: JWT.ADB2C.RequireHttpsMetadata value is assignd to options.RequireHttpsMetadata
-      // even complex nested objects are binded
-      // ex: JWT.ADB2C.TokenValidationParameters has its object entries automatically bound to
-      // options.TokenValidationParameters = new TokenValidationParameters { property = value, ... }
+      // TODO: insert values for the empty properties of the JWTOptions object in appsettings.json 
+      services
+        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options => Configuration.Bind("JWTOptions", options));
+      // binds the appsettings.json JWTOptions JSON object to the JWTBearerOptions object
+        // https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.jwtbearer.jwtbeareroptions?view=aspnetcore-3.0
+      // this is a shorthand approach to externalize the configuration in appsettings
+  
+      // notice each JWTOptions[optionProperty] corresponds to the JWTBearerOptions object properties from the documentation
+        // ex: JWTOptions.Audience in appsettings is assigned to options.Audience
+      // even complex nested objects are bound
+        // ex: JWTOptions.TokenValidationParameters has its object entries automatically bound to options.TokenValidationParameters
+          // as options.TokenValidationParameters = new TokenValidationParameters { property = value, ... }
 
       var connectionString = Configuration.GetConnectionString("Default");
       services.AddDbContext<CodingEventsDbContext>(o => o.UseMySql(connectionString));
