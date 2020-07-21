@@ -27,6 +27,7 @@ namespace CodingEventsAPI {
               )
             );
 
+            // TODO: set KeyVaultName in appsettings.json
             config.AddAzureKeyVault(
               $"https://{builtConfig["KeyVaultName"]}.vault.azure.net/",
               keyVaultClient,

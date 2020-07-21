@@ -26,7 +26,8 @@ namespace CodingEventsAPI {
 
     public void ConfigureServices(IServiceCollection services) {
       // set the ServerOrigin for Resource links
-      ResourceLink.ServerOrigin = Configuration["Server:Origin"];
+      // TODO: set the ServerOrigin in appsettings.json to your VM public IP (https://<public IP>)
+      ResourceLink.ServerOrigin = Configuration["ServerOrigin"];
 
       services.AddControllers();
 
@@ -42,7 +43,7 @@ namespace CodingEventsAPI {
       services.AddScoped<ICodingEventTagService, CodingEventTagService>();
 
       // authenticate using JWT Bearer
-      // TODO: insert values for the empty properties of the JWTOptions object in appsettings.json 
+      // TODO: insert values for the JWTOptions in appsettings.json 
       services
         .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options => Configuration.Bind("JWTOptions", options));
