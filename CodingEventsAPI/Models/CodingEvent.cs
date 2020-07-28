@@ -52,12 +52,13 @@ namespace CodingEventsAPI.Models {
     public string Description { get; set; }
 
     internal CodingEventDto(CodingEvent codingEvent) {
-      Title = codingEvent.Title;
       Date = codingEvent.Date;
+      Title = codingEvent.Title;
+      Description = codingEvent.Description;
 
       Links = new ExpandoObject();
-      Links.codingEvent = CodingEventsController.ResourceLinks.GetCodingEvent(codingEvent);
       Links.tags = CodingEventsController.ResourceLinks.GetTags(codingEvent);
+      Links.codingEvent = CodingEventsController.ResourceLinks.GetCodingEvent(codingEvent);
     }
 
     public static CodingEventDto ForPublic(CodingEvent codingEvent) {
@@ -84,7 +85,6 @@ namespace CodingEventsAPI.Models {
 
     private static CodingEventDto ForAnyMemberRole(CodingEvent codingEvent) {
       var codingEventDto = new CodingEventDto(codingEvent);
-      codingEventDto.Description = codingEvent.Description;
       codingEventDto.Links.members = MembersController.ResourceLinks.GetMembers(codingEvent);
 
       return codingEventDto;
