@@ -1,18 +1,17 @@
 using System;
 using System.Net.Http;
 using CodingEventsAPI.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace CodingEventsAPI.Controllers {
   public class ResourceLink {
     public string Href { get; }
 
-    public HttpMethod Method { get; }
+    public string Method { get; }
 
     public static string ServerOrigin { get; set; }
 
     internal ResourceLink(string path, HttpMethod method) {
-      Method = method;
+      Method = method.ToString();
       Href = $"{ServerOrigin}{path}";
     }
   }
