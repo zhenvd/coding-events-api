@@ -57,16 +57,14 @@ namespace CodingEventsAPI.Services {
     }
 
     public bool CanUserRegisterAsMember(long codeEventId, ClaimsPrincipal authedUser) {
+      if (!_codingEventRepository.Exists(codeEventId)) return false;
+
       var isMember = IsUserAMember(codeEventId, authedUser);
 
       return !isMember;
     }
 
     public bool IsUserAMember(long codeEventId, ClaimsPrincipal authedUser) {
-      var codeEventCount = _dbContext.CodingEvents.Count(ce => ce.Id == codeEventId);
-      var codeEventExists = codeEventCount == 1;
-      if (!codeEventExists) return false;
-
       var user = _authedUserService.ConvertAuthedUserToUser(authedUser);
       var memberCount = _dbContext.Members.Count(
         m => m.UserId == user.Id && m.CodingEventId == codeEventId
@@ -77,6 +75,8 @@ namespace CodingEventsAPI.Services {
     }
 
     public bool IsUserAnOwner(long codeEventId, ClaimsPrincipal authedUser) {
+      if (!_codingEventRepository.Exists(codeEventId)) return false;
+
       var isMember = IsUserAMember(codeEventId, authedUser);
       if (!isMember) return false;
 
