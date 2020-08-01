@@ -1,13 +1,9 @@
 using System.Collections.Generic;
-using System.Linq;
-using CodingEventsAPI.Data;
-using CodingEventsAPI.Data.Repositories;
 using CodingEventsAPI.Models;
 using CodingEventsAPI.Services;
 using CodingEventsAPI.Swagger;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CodingEventsAPI.Controllers {
@@ -18,14 +14,9 @@ namespace CodingEventsAPI.Controllers {
 
     public static readonly TagResourceLinks ResourceLinks = new TagResourceLinks(Entrypoint);
 
-    private CodingEventsDbContext _dbContext;
     private readonly IPublicAccessService _publicAccessService;
 
-    public TagsController(
-      CodingEventsDbContext dbContext,
-      IPublicAccessService publicAccessService
-    ) {
-      _dbContext = dbContext;
+    public TagsController(IPublicAccessService publicAccessService) {
       _publicAccessService = publicAccessService;
     }
 

@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Net.Mime;
-using CodingEventsAPI.Controllers;
 using CodingEventsAPI.Models;
 using CodingEventsAPI.Services;
 using CodingEventsAPI.Swagger;
@@ -17,8 +15,9 @@ namespace CodingEventsAPI.Controllers {
     private readonly IMemberService _memberService;
     private readonly IAuthedUserService _authedUserService;
 
-    // the entrypoint is still /api/events while {codingEventId} is inserted dynamically
     public static readonly MemberResourceLinks ResourceLinks =
+      // the entrypoint is still /api/events (from CodingEventsController)
+      // the /{codingEventId}/members subpath is inserted dynamically in the MemberResourceLinks
       new MemberResourceLinks(CodingEventsController.Entrypoint);
 
     public MembersController(

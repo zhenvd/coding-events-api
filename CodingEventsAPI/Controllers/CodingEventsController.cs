@@ -1,13 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using CodingEventsAPI.Data;
-using CodingEventsAPI.Data.Repositories;
 using CodingEventsAPI.Models;
 using CodingEventsAPI.Services;
 using CodingEventsAPI.Swagger;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CodingEventsAPI.Controllers {
