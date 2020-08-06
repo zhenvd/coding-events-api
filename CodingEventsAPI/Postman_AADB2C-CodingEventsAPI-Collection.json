@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ffdd8bac-a074-4432-900e-0dced5405e34",
+		"_postman_id": "a38965f6-8983-43c7-86ae-8676628110f0",
 		"name": "Coding Events API",
 		"description": "REST API for managing Coding Events",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -488,41 +488,6 @@
 					},
 					"response": [
 						{
-							"name": "User is already a Member or Owner",
-							"originalRequest": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/events/:codingEventId/members",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"events",
-										":codingEventId",
-										"members"
-									],
-									"variable": [
-										{
-											"key": "codingEventId"
-										}
-									]
-								}
-							},
-							"status": "Bad Request",
-							"code": 400,
-							"_postman_previewlanguage": "text",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "text/plain"
-								}
-							],
-							"cookie": [],
-							"body": ""
-						},
-						{
 							"name": "No content success",
 							"originalRequest": {
 								"method": "POST",
@@ -547,6 +512,41 @@
 							},
 							"status": "No Content",
 							"code": 204,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "User is already a Member or Owner",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/:codingEventId/members",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										":codingEventId",
+										"members"
+									],
+									"variable": [
+										{
+											"key": "codingEventId"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
 							"_postman_previewlanguage": "text",
 							"header": [
 								{
@@ -586,38 +586,6 @@
 					},
 					"response": [
 						{
-							"name": "Invalid or missing Tag data",
-							"originalRequest": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"azure\"\n}"
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/tags",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"tags"
-									]
-								}
-							},
-							"status": "Bad Request",
-							"code": 400,
-							"_postman_previewlanguage": "text",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "text/plain"
-								}
-							],
-							"cookie": [],
-							"body": ""
-						},
-						{
 							"name": "Returns new public Tag data",
 							"originalRequest": {
 								"method": "POST",
@@ -648,6 +616,38 @@
 							],
 							"cookie": [],
 							"body": "{\n \"name\": \"microsoft\",\n \"links\": {\n  \"codingEvents\": {\n   \"href\": \"https://localhost:5001/api/tags/599/events\",\n   \"method\": {\n    \"method\": \"GET\"\n   }\n  },\n  \"addToCodingEvent\": {\n   \"href\": \"https://localhost:5001/api/events/874/tags/599\",\n   \"method\": {\n    \"method\": \"PUT\"\n   }\n  },\n  \"removeFromCodingEvent\": {\n   \"href\": \"https://localhost:5001/api/events/874/tags/599\",\n   \"method\": {\n    \"method\": \"DELETE\"\n   }\n  }\n }\n}"
+						},
+						{
+							"name": "Invalid or missing Tag data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"azure\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/tags",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tags"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
 						}
 					]
 				}
@@ -683,6 +683,40 @@
 						"description": "Requires an authenticated Member or Owner of the Coding Event"
 					},
 					"response": [
+						{
+							"name": "Coding Event not found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/:codingEventId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										":codingEventId"
+									],
+									"variable": [
+										{
+											"key": "codingEventId"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
 						{
 							"name": "Not a Member of the Coding Event",
 							"originalRequest": {
@@ -750,40 +784,6 @@
 							],
 							"cookie": [],
 							"body": "{\n \"title\": \"LaunchCode: Introduction to Azure\",\n \"date\": \"2020-07-15T00:00:00-05:00\",\n \"links\": {\n  \"codingEvent\": {\n   \"href\": \"https://localhost:5001/api/events/874\",\n   \"method\": {\n    \"method\": \"GET\"\n   }\n  },\n  \"tags\": {\n   \"href\": \"https://localhost:5001/api/events/874/tags\",\n   \"method\": {\n    \"method\": \"GET\"\n   }\n  },\n  \"members\": {\n   \"href\": \"https://localhost:5001/api/events/874/members\",\n   \"method\": {\n    \"method\": \"GET\"\n   }\n  },\n  \"cancel\": {\n   \"href\": \"https://localhost:5001/api/events/874\",\n   \"method\": {\n    \"method\": \"DELETE\"\n   }\n  }\n },\n \"description\": \"A one week course on deploying a RESTful API to Azure\"\n}"
-						},
-						{
-							"name": "Coding Event not found",
-							"originalRequest": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/events/:codingEventId",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"events",
-										":codingEventId"
-									],
-									"variable": [
-										{
-											"key": "codingEventId"
-										}
-									]
-								}
-							},
-							"status": "Not Found",
-							"code": 404,
-							"_postman_previewlanguage": "text",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "text/plain"
-								}
-							],
-							"cookie": [],
-							"body": ""
 						}
 					]
 				},
@@ -977,41 +977,6 @@
 					},
 					"response": [
 						{
-							"name": "User is not a Member",
-							"originalRequest": {
-								"method": "DELETE",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/events/:codingEventId/members",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"events",
-										":codingEventId",
-										"members"
-									],
-									"variable": [
-										{
-											"key": "codingEventId"
-										}
-									]
-								}
-							},
-							"status": "Forbidden",
-							"code": 403,
-							"_postman_previewlanguage": "text",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "text/plain"
-								}
-							],
-							"cookie": [],
-							"body": ""
-						},
-						{
 							"name": "User is an Owner. (See CancelCodingEvent)",
 							"originalRequest": {
 								"method": "DELETE",
@@ -1036,6 +1001,41 @@
 							},
 							"status": "Bad Request",
 							"code": 400,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "User is not a Member",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/:codingEventId/members",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										":codingEventId",
+										"members"
+									],
+									"variable": [
+										{
+											"key": "codingEventId"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
 							"_postman_previewlanguage": "text",
 							"header": [
 								{
@@ -1116,40 +1116,6 @@
 					},
 					"response": [
 						{
-							"name": "No content success",
-							"originalRequest": {
-								"method": "DELETE",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/events/:codingEventId",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"events",
-										":codingEventId"
-									],
-									"variable": [
-										{
-											"key": "codingEventId"
-										}
-									]
-								}
-							},
-							"status": "No Content",
-							"code": 204,
-							"_postman_previewlanguage": "text",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "text/plain"
-								}
-							],
-							"cookie": [],
-							"body": ""
-						},
-						{
 							"name": "Not an Owner of the Coding Event",
 							"originalRequest": {
 								"method": "DELETE",
@@ -1173,6 +1139,40 @@
 							},
 							"status": "Forbidden",
 							"code": 403,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "No content success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/:codingEventId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										":codingEventId"
+									],
+									"variable": [
+										{
+											"key": "codingEventId"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
 							"_postman_previewlanguage": "text",
 							"header": [
 								{
@@ -1218,45 +1218,6 @@
 					},
 					"response": [
 						{
-							"name": "No content success",
-							"originalRequest": {
-								"method": "PUT",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/events/:codingEventId/tags/:tagId",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"events",
-										":codingEventId",
-										"tags",
-										":tagId"
-									],
-									"variable": [
-										{
-											"key": "codingEventId"
-										},
-										{
-											"key": "tagId"
-										}
-									]
-								}
-							},
-							"status": "No Content",
-							"code": 204,
-							"_postman_previewlanguage": "text",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "text/plain"
-								}
-							],
-							"cookie": [],
-							"body": ""
-						},
-						{
 							"name": "Not an Owner of the Coding Event",
 							"originalRequest": {
 								"method": "PUT",
@@ -1285,6 +1246,45 @@
 							},
 							"status": "Forbidden",
 							"code": 403,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "No content success",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/:codingEventId/tags/:tagId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										":codingEventId",
+										"tags",
+										":tagId"
+									],
+									"variable": [
+										{
+											"key": "codingEventId"
+										},
+										{
+											"key": "tagId"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
 							"_postman_previewlanguage": "text",
 							"header": [
 								{
@@ -1521,45 +1521,6 @@
 					},
 					"response": [
 						{
-							"name": "Member not found",
-							"originalRequest": {
-								"method": "DELETE",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/events/:codingEventId/members/:memberId",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"events",
-										":codingEventId",
-										"members",
-										":memberId"
-									],
-									"variable": [
-										{
-											"key": "codingEventId"
-										},
-										{
-											"key": "memberId"
-										}
-									]
-								}
-							},
-							"status": "Not Found",
-							"code": 404,
-							"_postman_previewlanguage": "text",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "text/plain"
-								}
-							],
-							"cookie": [],
-							"body": ""
-						},
-						{
 							"name": "No content success",
 							"originalRequest": {
 								"method": "DELETE",
@@ -1636,6 +1597,45 @@
 							],
 							"cookie": [],
 							"body": ""
+						},
+						{
+							"name": "Member not found",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/:codingEventId/members/:memberId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"events",
+										":codingEventId",
+										"members",
+										":memberId"
+									],
+									"variable": [
+										{
+											"key": "codingEventId"
+										},
+										{
+											"key": "memberId"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
 						}
 					]
 				}
@@ -1667,7 +1667,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "d5fd1642-305d-4b0f-b1a1-06d6053452d5",
+				"id": "0b4ec320-743f-494c-bf32-41d09080005b",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1677,7 +1677,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "a9751517-aa10-4225-ac1e-677b1cdb334a",
+				"id": "c3940a9c-739b-4c41-b7c6-3bc68f3c2b5a",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1687,9 +1687,39 @@
 	],
 	"variable": [
 		{
-			"id": "f246ddc9-cf34-4260-b0e4-88b23ca3d1bc",
+			"id": "09b9e920-8b10-4fec-9092-6177c1a41bc7",
 			"key": "baseUrl",
 			"value": "https://localhost:5001"
+		},
+		{
+			"id": "111f7615-e7bf-4ac0-b9ac-58bc9bcbeff9",
+			"key": "TokenName",
+			"value": "access token"
+		},
+		{
+			"id": "902024e7-ed7f-47a3-8917-94156614d779",
+			"key": "RedirectURL",
+			"value": "https://www.postman.com/oauth2/callback"
+		},
+		{
+			"id": "9c427ef2-e7a1-4ce4-b077-58cd2e553ba7",
+			"key": "AuthURL",
+			"value": ""
+		},
+		{
+			"id": "a986734a-b742-4537-8f25-2a79f868374e",
+			"key": "ClientID",
+			"value": ""
+		},
+		{
+			"id": "dc9238ee-28ca-4090-aaea-e1f15a01a9e2",
+			"key": "Scopes",
+			"value": ""
+		},
+		{
+			"id": "5e361420-f687-4b55-811d-f0ec78378cf5",
+			"key": "State",
+			"value": "Katy t3h PeNgU1N oF d00m"
 		}
 	],
 	"protocolProfileBehavior": {}
